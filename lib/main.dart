@@ -103,11 +103,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double _totalIncome = 0;
   double _totalExpenses = 0;
   List<Map<String, dynamic>> _expenseBreakdown = [];
+  List<Map<String, dynamic>> _recentTransactions = [];
 
   @override
   void initState() {
     super.initState();
     _fetchDashboardData();
+    _fetchRecentTransactions();
   }
 
   Future<void> _fetchDashboardData() async {
@@ -132,13 +134,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  Future<void> _fetchRecentTransactions() async {
+    final db = await widget.database;
+
+    // Fetch the two most recent transactions
+    final recentTransactions = await db.query(
+      'transactions',
+      orderBy: 'date DESC',
+      limit: 2,
+    );
+
+    setState(() {
+      _recentTransactions = recentTransactions;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currentMonth = DateFormat('MMMM').format(DateTime.now()); // Get the current month
+    final currentMonth = DateFormat('MMMM').format(DateTime.now());
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Budget for $currentMonth'), // Display the month dynamically
+        title: Text('Budget for $currentMonth'),
         centerTitle: true,
       ),
       body: Padding(
@@ -160,9 +177,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            Text(
-              'Expense Breakdown for $currentMonth', // Include month in breakdown title
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            const Text(
+              'Expense Breakdown',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             _expenseBreakdown.isEmpty
@@ -182,6 +199,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       .toList(),
                 ),
               ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Recent Transactions',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            _recentTransactions.isEmpty
+                ? const Text('No recent transactions available')
+                : Column(
+              children: _recentTransactions.map((transaction) {
+                return ListTile(
+                  title: Text(transaction['title']),
+                  subtitle: Text(
+                      '${transaction['category']} - ${DateFormat('yyyy-MM-dd').format(DateTime.parse(transaction['date']))}'),
+                  trailing: Text(
+                    '\$${transaction['amount'].toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: transaction['type'] == 'income'
+                          ? Colors.green
+                          : Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -216,7 +259,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 
-Widget _buildSummaryCard(String title, double value, Color color) {
+  Widget _buildSummaryCard(String title, double value, Color color) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '\$${value.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+Widget _buildSummaryCard2(String title, double value, Color color) {
   return Card(
     elevation: 4,
     shape: RoundedRectangleBorder(
