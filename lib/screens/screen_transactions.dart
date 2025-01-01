@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 
 class TransactionsScreen extends StatefulWidget {
   final Future<Database> database;
-
   const TransactionsScreen({Key? key, required this.database}) : super(key: key);
 
   @override

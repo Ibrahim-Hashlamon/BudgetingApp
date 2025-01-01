@@ -173,7 +173,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 }
 
 
-Widget _buildSummaryCard(String title, double value, Color color) {
+Widget _buildSummaryCard2(String title, double value, Color color) {
   return Card(
     elevation: 4,
     shape: RoundedRectangleBorder(
@@ -200,7 +200,7 @@ Widget _buildSummaryCard(String title, double value, Color color) {
 
 
 
-Widget _buildSummaryCard2(String title, double value, Color color) {
+Widget _buildSummaryCard3(String title, double value, Color color) {
   return Card(
     elevation: 4,
     shape: RoundedRectangleBorder(

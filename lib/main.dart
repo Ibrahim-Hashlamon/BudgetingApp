@@ -70,8 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final pages = [
       DashboardScreen(database: widget.database),
       TransactionsScreen(database: widget.database),
-      //ReportsScreen(database: widget.database),
-      //SettingsScreen(database: widget.database),
+      ReportsScreen(database: widget.database),
+      SettingsScreen(database: widget.database),
     ];
 
     return Scaffold(
