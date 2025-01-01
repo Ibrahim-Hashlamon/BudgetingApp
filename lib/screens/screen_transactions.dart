@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
 
@@ -54,7 +53,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               transaction['type'] == 'income'
                   ? Icons.arrow_upward
                   : Icons.arrow_downward,
-              color: transaction['type'] == 'income' ? Colors.green : Colors.red,
+              color: transaction['type'] == 'income'
+                  ? Colors.green
+                  : Colors.red,
             ),
             title: Text(transaction['title']),
             subtitle: Text(
@@ -66,7 +67,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 Text(
                   '\$${transaction['amount'].toStringAsFixed(2)}',
                   style: TextStyle(
-                    color: transaction['type'] == 'income' ? Colors.green : Colors.red,
+                    color: transaction['type'] == 'income'
+                        ? Colors.green
+                        : Colors.red,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -84,7 +87,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddTransactionScreen(database: widget.database),
+              builder: (context) =>
+                  AddTransactionScreen(database: widget.database),
             ),
           );
           _fetchTransactions();
@@ -98,7 +102,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 class AddTransactionScreen extends StatefulWidget {
   final Future<Database> database;
 
-  const AddTransactionScreen({Key? key, required this.database}) : super(key: key);
+  const AddTransactionScreen({Key? key, required this.database})
+      : super(key: key);
 
   @override
   _AddTransactionScreenState createState() => _AddTransactionScreenState();
@@ -110,6 +115,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String _type = 'expense';
   String? _selectedCategory;
   List<String> _categories = [];
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -119,7 +125,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   Future<void> _fetchCategories() async {
     final db = await widget.database;
-    final categories = await db.query('categories', where: 'type = ?', whereArgs: [_type]);
+    final categories =
+    await db.query('categories', where: 'type = ?', whereArgs: [_type]);
     setState(() {
       _categories = categories.map((e) => e['name'] as String).toList();
       _selectedCategory = _categories.isNotEmpty ? _categories.first : null;
@@ -132,128 +139,152 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     _fetchCategories(); // Refresh categories after adding a new one
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
         title: const Text('Add Transaction'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
-            ),
-            TextField(
-              controller: _amountController,
-              decoration: const InputDecoration(labelText: 'Amount'),
-              keyboardType: TextInputType.number,
-            ),
-            DropdownButton<String>(
-              value: _type,
-              items: const [
-                DropdownMenuItem(
-                  value: 'expense',
-                  child: Text('Expense'),
-                ),
-                DropdownMenuItem(
-                  value: 'income',
-                  child: Text('Income'),
-                ),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _type = value!;
-                  _fetchCategories(); // Refresh categories when type changes
-                });
-              },
-            ),
-            DropdownButton<String?>(
-              value: _selectedCategory,
-              hint: const Text('Select Category'),
-              items: _categories.isEmpty
-                  ? [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text('No Categories Available'),
-                ),
-              ]
-                  : _categories
-                  .map((category) => DropdownMenuItem(
-                value: category,
-                child: Text(category),
-              ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedCategory = value;
-                });
-              },
-            ),
-            TextButton(
-              onPressed: () async {
-                final newCategory = await showDialog<String>(
-                  context: context,
-                  builder: (BuildContext dialogContext) {
-                    final categoryController = TextEditingController();
-                    return AlertDialog(
-                      title: const Text('Add New Category'),
-                      content: TextField(
-                        controller: categoryController,
-                        decoration: const InputDecoration(labelText: 'Category Name'),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(dialogContext),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(dialogContext, categoryController.text),
-                          child: const Text('Add'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                if (newCategory != null && newCategory.isNotEmpty) {
-                  await _addCategory(newCategory);
-                }
-              },
-              child: const Text('Add New Category'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                if (_titleController.text.isEmpty ||
-                    _amountController.text.isEmpty ||
-                    _selectedCategory == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please fill in all fields.')),
-                  );
-                  return;
-                }
-
-                final db = await widget.database;
-                final formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-                await db.insert(
-                  'transactions',
-                  {
-                    'title': _titleController.text,
-                    'amount': double.parse(_amountController.text),
-                    'type': _type,
-                    'category': _selectedCategory,
-                    'date': formattedDate,
-                  },
-                );
-                Navigator.pop(context);
-              },
-              child: const Text('Add Transaction'),
-            ),
-          ],
-        ),
-      ),
+    ),
+    body: Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+    children: [
+    TextField(
+    controller: _titleController,
+    decoration: const InputDecoration(labelText: 'Title'),
+    ),
+    TextField(
+    controller: _amountController,
+    decoration: const InputDecoration(labelText: 'Amount'),
+    keyboardType: TextInputType.number,
+    ),
+    DropdownButton<String>(
+    value: _type,
+    items: const [
+    DropdownMenuItem(
+    value: 'expense',
+    child: Text('Expense'),
+    ),
+    DropdownMenuItem(
+    value: 'income',
+    child: Text('Income'),
+    ),
+    ],
+    onChanged: (value) {
+    setState(() {
+    _type = value!;
+    _fetchCategories(); // Refresh categories when type changes
+    });
+    },
+    ),
+    DropdownButton<String?>(
+    value: _selectedCategory,
+    hint: const Text('Select Category'),
+    items: _categories.isEmpty
+    ? [
+    const DropdownMenuItem(
+    value: null,
+    child: Text('No Categories Available'),
+    ),
+    ]
+        : _categories
+        .map((category) => DropdownMenuItem(
+    value: category,
+    child: Text(category),
+    ))
+        .toList(),
+    onChanged: (value) {
+    setState(() {
+    _selectedCategory = value;
+    });
+    },
+    ),
+    TextButton(
+    onPressed: () async {
+    final newCategory = await showDialog<String>(
+    context: context,
+    builder: (BuildContext dialogContext) {
+    final categoryController = TextEditingController();
+    return AlertDialog(
+    title: const Text('Add New Category'),
+    content: TextField(
+    controller: categoryController,
+    decoration:
+    const InputDecoration(labelText: 'Category Name'),
+    ),
+    actions: [
+    TextButton(
+    onPressed: () => Navigator.pop(dialogContext),
+    child: const Text('Cancel'),
+    ),
+    TextButton(
+    onPressed: () => Navigator.pop(
+    dialogContext, categoryController.text),
+    child: const Text('Add'),
+    ),
+    ],
     );
+    },
+    );
+    if (newCategory != null && newCategory.isNotEmpty) {
+    await _addCategory(newCategory);
+    }
+    },
+    child: const Text('Add New Category'),
+    ),
+    ListTile(
+    title: Text(
+    'Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}',
+    ),
+    trailing: const Icon(Icons.calendar_today),
+    onTap: () => _selectDate(context),
+    ),
+    const SizedBox(height: 20),
+    ElevatedButton(
+    onPressed: () async {
+    if (_titleController.text.isEmpty ||
+    _amountController.text.isEmpty ||
+    _selectedCategory == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Please fill in all fields.')),
+    );
+    return;
+    }
+
+    final db = await widget.database;
+    final formattedDate =
+    DateFormat('yyyy-MM-dd').format(_selectedDate);
+    await db.insert(
+    'transactions',
+    {
+    'title': _titleController.text,
+    'amount': double.parse(_amountController.text),
+    'type': _type,
+    'category': _selectedCategory,
+    'date': formattedDate,
+    },
+    );
+    Navigator.pop(context);
+    },
+    child: const Text('Add Transaction'),
+    ),
+    ], // Closing the Column's children array
+    ), // Closing the Column widget
+    ), // Closing the Padding widget
+    ); // Closing the Scaffold widget
   }
 }
