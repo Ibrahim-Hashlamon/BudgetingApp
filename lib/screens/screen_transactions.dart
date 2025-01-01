@@ -167,11 +167,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     controller: _titleController,
     decoration: const InputDecoration(labelText: 'Title'),
     ),
+    const SizedBox(height: 20),
     TextField(
     controller: _amountController,
     decoration: const InputDecoration(labelText: 'Amount'),
     keyboardType: TextInputType.number,
     ),
+      const SizedBox(height: 20),
     DropdownButton<String>(
     value: _type,
     items: const [

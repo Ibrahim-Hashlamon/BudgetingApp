@@ -90,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _buildSummaryCard('Savings', _totalIncome - _totalExpenses, Colors.teal),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 40),
             const Text(
               'Expense Breakdown',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -114,7 +114,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 68),
             const Text(
               'Recent Transactions',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
