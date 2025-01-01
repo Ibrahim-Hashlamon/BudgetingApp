@@ -55,13 +55,11 @@ class BudgetingApp extends StatelessWidget {
       title: 'Budgeting App',
       themeMode: themeProvider.themeMode,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         brightness:  Brightness.light,
         useMaterial3: true,
         colorSchemeSeed: Colors.teal,
       ),
       darkTheme: ThemeData(
-      primarySwatch: Colors.blue,
       brightness: Brightness.dark,
         useMaterial3: true,
         colorSchemeSeed: Colors.teal,
