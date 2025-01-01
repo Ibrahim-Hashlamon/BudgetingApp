@@ -2,13 +2,15 @@ import 'screens/screen_dashboard.dart';
 import 'screens/screen_transactions.dart';
 import 'screens/screen_reports.dart';
 import 'screens/screen_settings.dart';
-// Advanced Budgeting App with Functional Dashboard and Fixed Transaction Categories
-
+import 'package:incredible_budgeting_app_fixed/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:intl/intl.dart';
+
+// Advanced Budgeting App with Functional Dashboard and Fixed Transaction Categories
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +34,12 @@ void main() async {
   );
 
   runApp(BudgetingApp(database: database));
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: BudgetingApp(database: database),
+    ),
+  );
 }
 
 class BudgetingApp extends StatelessWidget {
@@ -41,10 +49,20 @@ class BudgetingApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Budgeting App',
+      themeMode: themeProvider.themeMode,
       theme: ThemeData(
+        primarySwatch: Colors.blue,
+        brightness:  Brightness.light,
+        useMaterial3: true,
+        colorSchemeSeed: Colors.teal,
+      ),
+      darkTheme: ThemeData(
+      primarySwatch: Colors.blue,
+      brightness: Brightness.dark,
         useMaterial3: true,
         colorSchemeSeed: Colors.teal,
       ),
