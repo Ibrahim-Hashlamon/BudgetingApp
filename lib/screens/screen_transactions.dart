@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
+import 'screen_edit_transactions.dart';
 
 class TransactionsScreen extends StatefulWidget {
   final Future<Database> database;
@@ -48,41 +49,58 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         itemCount: _transactions.length,
         itemBuilder: (context, index) {
           final transaction = _transactions[index];
-          return ListTile(
-            leading: Icon(
-              transaction['type'] == 'income'
-                  ? Icons.arrow_upward
-                  : Icons.arrow_downward,
-              color: transaction['type'] == 'income'
-                  ? Colors.green
-                  : Colors.red,
-            ),
-            title: Text(transaction['title']),
-            subtitle: Text(
-              '${transaction['category']} - ${DateFormat('yyyy-MM-dd').format(DateTime.parse(transaction['date']))}',
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '\$${transaction['amount'].toStringAsFixed(2)}',
-                  style: TextStyle(
-                    color: transaction['type'] == 'income'
-                        ? Colors.green
-                        : Colors.red,
-                    fontWeight: FontWeight.bold,
+          return InkWell(
+            onTap: () async {
+              // Navigate to EditTransactionScreen with the selected transaction
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditTransactionScreen(transaction: transaction,
+                  onSave: (){
+                    setState((){
+                      _fetchTransactions();
+                    });
+                  }),
+                ),
+              );
+              if (result == 'updated') {
+                // Refresh the transaction list
+                _fetchTransactions();
+              }
+            },
+            child: ListTile(
+              leading: Icon(
+                transaction['type'] == 'income'
+                    ? Icons.arrow_upward
+                    : Icons.arrow_downward,
+                color: transaction['type'] == 'income' ? Colors.green : Colors.red,
+              ),
+              title: Text(transaction['title']),
+              subtitle: Text(
+                '${transaction['category']} - ${DateFormat('yyyy-MM-dd').format(DateTime.parse(transaction['date']))}',
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '\$${transaction['amount'].toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: transaction['type'] == 'income' ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteTransaction(transaction['id']),
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteTransaction(transaction['id']),
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+
+        floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.push(
             context,
