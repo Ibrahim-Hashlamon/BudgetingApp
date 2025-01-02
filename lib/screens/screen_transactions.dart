@@ -60,7 +60,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     setState((){
                       _fetchTransactions();
                     });
-                  }),
+                  }, database: widget.database,),
                 ),
               );
               if (result == 'updated') {
