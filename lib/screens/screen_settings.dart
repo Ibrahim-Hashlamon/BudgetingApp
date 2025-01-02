@@ -8,7 +8,7 @@ class SettingsScreen extends StatelessWidget {
   final Future<Database> database;
 
 
-  const SettingsScreen({Key? key, required this.database}) : super(key: key);
+  const SettingsScreen({super.key, required this.database});
 
   @override
   Widget build(BuildContext context) {

@@ -4,11 +4,9 @@ import 'screens/screen_reports.dart';
 import 'screens/screen_settings.dart';
 import 'package:incredible_budgeting_app_fixed/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:intl/intl.dart';
 
 // Advanced Budgeting App with Functional Dashboard and Fixed Transaction Categories
 
@@ -33,7 +31,7 @@ void main() async {
     version: 1,
   );
 
-  runApp(BudgetingApp(database: database));
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => ThemeProvider(),
@@ -45,7 +43,7 @@ void main() async {
 class BudgetingApp extends StatelessWidget {
   final Future<Database> database;
 
-  const BudgetingApp({Key? key, required this.database}) : super(key: key);
+  const BudgetingApp({super.key, required this.database});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +70,7 @@ class BudgetingApp extends StatelessWidget {
 class HomeScreen extends StatefulWidget {
   final Future<Database> database;
 
-  const HomeScreen({Key? key, required this.database}) : super(key: key);
+  const HomeScreen({super.key, required this.database});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();

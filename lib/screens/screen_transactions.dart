@@ -5,7 +5,7 @@ import 'screen_edit_transactions.dart';
 
 class TransactionsScreen extends StatefulWidget {
   final Future<Database> database;
-  const TransactionsScreen({Key? key, required this.database}) : super(key: key);
+  const TransactionsScreen({super.key, required this.database});
 
   @override
   _TransactionsScreenState createState() => _TransactionsScreenState();
@@ -120,8 +120,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 class AddTransactionScreen extends StatefulWidget {
   final Future<Database> database;
 
-  const AddTransactionScreen({Key? key, required this.database})
-      : super(key: key);
+  const AddTransactionScreen({super.key, required this.database});
 
   @override
   _AddTransactionScreenState createState() => _AddTransactionScreenState();

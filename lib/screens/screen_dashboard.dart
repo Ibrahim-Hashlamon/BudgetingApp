@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 class DashboardScreen extends StatefulWidget {
   final Future<Database> database;
 
-  const DashboardScreen({Key? key, required this.database}) : super(key: key);
+  const DashboardScreen({super.key, required this.database});
 
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
